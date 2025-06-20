@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Cidades e Canteiros | Processador Automático</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 2rem 0;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+      margin-bottom: 2rem;
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    h1 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-size: 2.2rem;
+    }
+    .subtitle {
+      font-weight: 300;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .file-input-container {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .file-input-label {
+      display: block;
+      padding: 1.5rem;
+      border: 2px dashed var(--light-gray);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .file-input-label:hover {
+      border-color: var(--primary);
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+    .file-input-label i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .file-input-label span {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .file-input-label small {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    #fileInput {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    .progress-container {
+      margin-top: 1.5rem;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    .progress-bar {
+      height: 10px;
+      background-color: var(--light-gray);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .btn-container {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .btn i {
+      font-size: 0.9rem;
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #3a56d4;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+    }
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #e5177b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(247, 37, 133, 0.3);
+    }
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+    .btn-success:hover {
+      background-color: #3ab5d8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(76, 201, 240, 0.3);
+    }
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+    .hidden {
+      display: none !important;
+    }
+    .results-container {
+      margin-top: 2rem;
+    }
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      border-top: 4px solid var(--primary);
+    }
+    .summary-card h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    .summary-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .summary-card .subtext {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-top: 0.3rem;
+    }
+    .chart-container {
+      margin-bottom: 2rem;
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .cities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .city-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid var(--primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .city-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    .city-card-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+    .city-name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .pole-name {
+      font-size: 0.85rem;
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .city-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .total-row {
+      grid-column: 1 / -1;
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .total-label {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .total-value {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .credits {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    .credits a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .credits a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .administration-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      border-top: 4px solid #4cc9f0;
+      margin-bottom: 1.5rem;
+    }
+    .administration-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #4cc9f0;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .administration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .administration-item {
+      background: #f8f9fa;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border-left: 3px solid #4cc9f0;
+    }
+    .administration-code {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 0.3rem;
+    }
+    .administration-description {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    .administration-value {
+      font-weight: 700;
+      color: #212529;
+    }
+    .administration-total {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed #dee2e6;
+      display: flex;
+      justify-content: space-between;
+    }
+    /* Estilos do Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideDown 0.3s;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .modal-header h3 {
+      color: var(--primary);
+      margin: 0;
+      font-size: 1.3rem;
+    }
+    .close-modal {
+      color: var(--gray);
+      font-size: 1.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .close-modal:hover {
+      color: var(--danger);
+    }
+    .modal-body {
+      padding: 0.5rem;
+    }
+    /* Estilos para cidades com administração */
+    .city-card.has-admin {
+      border-left: 4px solid #4cc9f0;
+    }
+    .administration-badge {
+      display: inline-block;
+      background-color: #4cc9f0;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      margin-left: 0.5rem;
+    }
+    .city-card.has-admin:hover {
+      border-left: 4px solid #3ab5d8;
+    }
+    .city-card[style*="transform: scale(1.02)"] {
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      header {
+        padding: 1.5rem 0;
+        border-radius: 0 0 15px 15px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+      }
+      .summary-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cities-grid {
+        grid-template-columns: 1fr;
+      }
+      .administration-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .summary-cards {
+        grid-template-columns: 1fr;
+      }
+      .btn-container {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .administration-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-header h3 {
+        font-size: 1.2rem;
+      }
+      .modal-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Relatório de Cidades e Canteiros</h1>
+      <p class="subtitle">Processamento automático de valores por localidade</p>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="card">
+      <div class="card-title">
+        <i class="fas fa-file-upload"></i>
+        <span>Carregar Relatórios</span>
+      </div>
+      
+      <div class="file-input-container">
+        <label for="fileInput" class="file-input-label">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Arraste e solte os arquivos PDF aqui ou clique para selecionar</span>
+          <small>Selecione um ou mais arquivos PDF para processamento</small>
+        </label>
+        <input type="file" id="fileInput" accept="application/pdf" multiple>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-info">
+          <span id="progressStatus">Aguardando arquivos...</span>
+          <span id="fileCount">0 arquivos selecionados</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress" id="progressBar"></div>
+        </div>
+      </div>
+      
+      <div class="btn-container">
+        <button class="btn btn-primary" onclick="processFiles()" id="processBtn">
+          <i class="fas fa-cogs"></i> Processar Arquivos
+        </button>
+        <button class="btn btn-danger" onclick="clearAll()">
+          <i class="fas fa-trash"></i> Limpar Tudo
+        </button>
+        <div id="exportButtons" class="hidden">
+          <button class="btn btn-success" onclick="exportExcel()">
+            <i class="fas fa-file-excel"></i> Exportar Excel
+          </button>
+          <button class="btn btn-success" onclick="exportPDF()">
+            <i class="fas fa-file-pdf"></i> Exportar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="resultsContainer" class="hidden">
+      <div class="summary-cards">
+        <div class="summary-card">
+          <h3>Cidades Processadas</h3>
+          <div class="value" id="citiesCount">0</div>
+          <div class="subtext">Total de localidades identificadas</div>
+        </div>
+        <div class="summary-card">
+          <h3>Canteiros Encontrados</h3>
+          <div class="value" id="polesCount">0</div>
+          <div class="subtext">Grupos de cidades identificados</div>
+        </div>
+        <div class="summary-card">
+          <h3>Valor Total Geral</h3>
+          <div class="value" id="totalValue">R$ 0,00</div>
+          <div class="subtext">Soma de todos os valores processados</div>
+        </div>
+        <div class="summary-card">
+          <h3>Média por Cidade</h3>
+          <div class="value" id="averageValue">R$ 0,00</div>
+          <div class="subtext">Valor médio por localidade</div>
+        </div>
+      </div>
+      
+      <div class="administration-card">
+        <div class="administration-title">
+          <i class="fas fa-cog"></i>
+          Custos de Administração dos Canteiros
+        </div>
+        <div class="administration-grid" id="administrationGrid">
+          <!-- Itens serão preenchidos dinamicamente -->
+        </div>
+        <div class="administration-total">
+          <span>Total Administração:</span>
+          <span id="administrationTotal">R$ 0,00</span>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-bar"></i>
+          Distribuição por Canteiro
+        </div>
+        <canvas id="polesChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-bar"></i>
+          Top 10 Cidades por Valor
+        </div>
+        <canvas id="citiesChart"></canvas>
+      </div>
+      
+      <div class="results-container">
+        <h2 class="chart-title">
+          <i class="fas fa-map-marked-alt"></i>
+          Detalhamento por Cidade
+        </h2>
+        <div id="resultsGrid" class="cities-grid">
+          <!-- As cidades serão inseridas aqui dinamicamente -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="credits">
+      Desenvolvido por <a href="http://wa.me/+5538998683467" target="_blank">Pablo Dias</a> | © 2025 Todos os direitos reservados
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div id="cityDetailsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalCityName">Detalhes da Cidade</h3>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="administration-grid" id="modalAdminGrid"></div>
+        <div class="administration-total">
+          <span>Total Administração:</span>
+          <span id="modalAdminTotal">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuração do PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+    // Mapeamento das cidades para identificar o canteiro
+    const cityMap = {
+      // CANTEIRO PRINCIPAL
+            'caratinga': 'CANTEIRO PRINCIPAL',
+            'santa luzia de caratinga': 'CANTEIRO PRINCIPAL',
+            'dom modesto': 'CANTEIRO PRINCIPAL',
+            'sapucaia de caratinga': 'CANTEIRO PRINCIPAL',
+            'patrocinio de caratinga': 'CANTEIRO PRINCIPAL',
+            'santo antonio do manhuacu': 'CANTEIRO PRINCIPAL',
+            'sao candido': 'CANTEIRO PRINCIPAL',
+            'santa efigenia de caratinga': 'CANTEIRO PRINCIPAL',
+            'sao joao do jacutinga': 'CANTEIRO PRINCIPAL',
+            'santa rita de minas': 'CANTEIRO PRINCIPAL',
+            'piedade de caratinga': 'CANTEIRO PRINCIPAL',
+            'bom jesus do galho': 'CANTEIRO PRINCIPAL',
+            'quartel do sacramento': 'CANTEIRO PRINCIPAL',
+            'reves do belem': 'CANTEIRO PRINCIPAL',
+            'entre folhas': 'CANTEIRO PRINCIPAL',
+            'vargem alegre': 'CANTEIRO PRINCIPAL',
+            'santa barbara do leste': 'CANTEIRO PRINCIPAL',
+            'cordeiro de minas': 'CANTEIRO PRINCIPAL',
+            'residencial porto seguro': 'CANTEIRO PRINCIPAL',
+
+            // CANTEIRO DE APOIO 1
+            'alvinopolis': 'CANTEIRO DE APOIO 1',
+            'santa cruz do escalvado': 'CANTEIRO DE APOIO 1',
+            'dom silverio': 'CANTEIRO DE APOIO 1',
+            'barra longa': 'CANTEIRO DE APOIO 1',
+
+            // CANTEIRO DE APOIO 2
+            'espera feliz': 'CANTEIRO DE APOIO 2',
+            'faria lemos': 'CANTEIRO DE APOIO 2',
+            'sao joao do manhuacu': 'CANTEIRO DE APOIO 2',
+            'orizania': 'CANTEIRO DE APOIO 2',
+            'divino': 'CANTEIRO DE APOIO 2',
+            'caiana': 'CANTEIRO DE APOIO 2',
+            'caparao': 'CANTEIRO DE APOIO 2',
+
+            // CANTEIRO DE APOIO 3
+            'inhapim': 'CANTEIRO DE APOIO 3',
+            'tabajara': 'CANTEIRO DE APOIO 3',
+            'dom cavati': 'CANTEIRO DE APOIO 3',
+            'ubaporanga': 'CANTEIRO DE APOIO 3',
+            'imbe de minas': 'CANTEIRO DE APOIO 3',
+            'sao domingo das dores': 'CANTEIRO DE APOIO 3',
+            'sao sebastiao do anta': 'CANTEIRO DE APOIO 3',
+
+            // CANTEIRO DE APOIO 4
+            'matipo': 'CANTEIRO DE APOIO 4',
+            'padre fialho': 'CANTEIRO DE APOIO 4',
+            'caputira': 'CANTEIRO DE APOIO 4',
+            'sao caetano': 'CANTEIRO DE APOIO 4',
+            'bom jesus de pirapetinga': 'CANTEIRO DE APOIO 4',
+            'santa margarida': 'CANTEIRO DE APOIO 4',
+            'ribeirao de sao domingos': 'CANTEIRO DE APOIO 4',
+
+            // CANTEIRO DE APOIO 5
+            'resplendor': 'CANTEIRO DE APOIO 5',
+            'calixto': 'CANTEIRO DE APOIO 5',
+            'campo alegre de minas': 'CANTEIRO DE APOIO 5',
+            'independencia': 'CANTEIRO DE APOIO 5',
+            'nicolandia': 'CANTEIRO DE APOIO 5',
+            'itueta': 'CANTEIRO DE APOIO 5',
+            'quatituba': 'CANTEIRO DE APOIO 5',
+            'santa rita do itueto': 'CANTEIRO DE APOIO 5',
+            'sao jose do itueto': 'CANTEIRO DE APOIO 5',
+            'aldeia': 'CANTEIRO DE APOIO 5',
+            'mutum': 'CANTEIRO DE APOIO 5',
+            'roseiral': 'CANTEIRO DE APOIO 5',
+            'imbirucu': 'CANTEIRO DE APOIO 5',
+
+            // CANTEIRO DE APOIO 6
+            'rio casca': 'CANTEIRO DE APOIO 6',
+            'santo antonio do grama': 'CANTEIRO DE APOIO 6',
+            'urucania': 'CANTEIRO DE APOIO 6',
+            'bom jesus de cardosos': 'CANTEIRO DE APOIO 6',
+            'piedade de ponte nova': 'CANTEIRO DE APOIO 6',
+            'sao pedro dos ferros': 'CANTEIRO DE APOIO 6',
+            'sericita': 'CANTEIRO DE APOIO 6',
+
+            // CANTEIRO DE APOIO 7
+            'tarumirim': 'CANTEIRO DE APOIO 7',
+            'cafe mirim': 'CANTEIRO DE APOIO 7',
+            'sao vicente do rio doce': 'CANTEIRO DE APOIO 7',
+            'taruacu de minas': 'CANTEIRO DE APOIO 7',
+            'vai e volta': 'CANTEIRO DE APOIO 7',
+            'dom carloto': 'CANTEIRO DE APOIO 7',
+            'itanhomi': 'CANTEIRO DE APOIO 7',
+            'edgard melo': 'CANTEIRO DE APOIO 7',
+            'sao francisco do jatai': 'CANTEIRO DE APOIO 7',
+            'sao geraldo de tumiritinga': 'CANTEIRO DE APOIO 7',
+            'tumiritinga': 'CANTEIRO DE APOIO 7',
+            'alvarenga': 'CANTEIRO DE APOIO 7',
+
+            // CANTEIRO DE APOIO 8
+            'simonesia': 'CANTEIRO DE APOIO 8',
+            'sao simao do rio preto': 'CANTEIRO DE APOIO 8',
+            'alegria': 'CANTEIRO DE APOIO 8',
+            'santana do manhuacu': 'CANTEIRO DE APOIO 8',
+            'sao jose do mantimento': 'CANTEIRO DE APOIO 8',
+            'martins soares': 'CANTEIRO DE APOIO 8',
+            'durande': 'CANTEIRO DE APOIO 8',
+            'alto jequitiba': 'CANTEIRO DE APOIO 8'
+    };
+
+    // Mapeamento dos códigos de administração (para extração dos valores)
+    const administrationCodes = {
+      '85054587': 'CANTEIRO DE OBRAS - MA',
+      '85054588': 'MANUTENÇÃO E CONSERVAÇÃO CANTEIRO OBRAS',
+      '85054603': 'EQUIPE DE SUPERVISÃO E CONTROLE DAS ATIV',
+      '85054605': 'CANTEIRO DE OBRAS - CVA',
+      '85054606': 'MANUTENÇÃO E CONSERVAÇÃO CANTEIRO OBRAS',
+      '85054617': 'EQUIPE DE SUPERVISÃO E CONTROLE DAS ATIV',
+      '85054619': 'CANTEIRO DE OBRAS - MOA',
+      '85054620': 'MANUTENÇÃO E CONSERVAÇÃO CANTEIRO OBRAS',
+      '85054634': 'EQUIPE DE SUPERVISÃO E CONTROLE DAS ATIV'
+    };
+
+    // Mapeamento simplificado para uso no PDF (apenas códigos)
+    const administrationCodesForPDF = {
+      '85054587': '85054587',
+      '85054588': '85054588',
+      '85054603': '85054603',
+      '85054605': '85054605',
+      '85054606': '85054606',
+      '85054617': '85054617',
+      '85054619': '85054619',
+      '85054620': '85054620',
+      '85054634': '85054634'
+    };
+
+    const normalizeText = (str) => {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    };
+
+    // Função para agrupar itens de texto por linha com uma tolerância (em pixels)
+    function agruparPorLinha(items, tolerance = 5) {
+      const linhas = [];
+      items.forEach(item => {
+        const y = item.transform[5];
+        let linhaExistente = linhas.find(l => Math.abs(l.y - y) < tolerance);
+        if (linhaExistente) {
+          linhaExistente.items.push(item);
+        } else {
+          linhas.push({ y: y, items: [item] });
+        }
+      });
+      linhas.forEach(linha => {
+        linha.items.sort((a, b) => a.transform[4] - b.transform[4]);
+      });
+      return linhas;
+    }
+
+    // Reconstrói a linha concatenando os tokens ordenados pela posição horizontal
+    function reconstruirLinha(linha) {
+      return linha.items.map(item => item.str).join(' ').trim();
+    }
+
+    let processing = false;
+    let cityTotals = {};
+    let poleTotals = {};
+    let polesChart = null;
+    let citiesChart = null;
+    let administrationTotals = {
+      '85054587': 0,
+      '85054588': 0,
+      '85054603': 0,
+      '85054605': 0,
+      '85054606': 0,
+      '85054617': 0,
+      '85054619': 0,
+      '85054620': 0,
+      '85054634': 0
+    };
+    let administrationByCity = {};
+
+    // Atualizar a contagem de arquivos selecionados
+    document.getElementById('fileInput').addEventListener('change', function() {
+      const count = this.files.length;
+      document.getElementById('fileCount').textContent = `${count} arquivo(s) selecionado(s)`;
+      document.getElementById('progressStatus').textContent = count > 0 ? 'Pronto para processar' : 'Aguardando arquivos';
+    });
+
+    // Funções para abrir e fechar o modal
+    function showCityDetails(cityName) {
+      const modal = document.getElementById('cityDetailsModal');
+      document.getElementById('modalCityName').textContent = capitalizeFirstLetter(cityName);
+      const gridContainer = document.getElementById('modalAdminGrid');
+      gridContainer.innerHTML = '';
+      let adminTotal = 0;
+      if (administrationByCity[cityName]) {
+        Object.entries(administrationCodes).forEach(([code, description]) => {
+          const value = administrationByCity[cityName][code] || 0;
+          adminTotal += value;
+          const item = document.createElement('div');
+          item.className = 'administration-item';
+          item.innerHTML = `
+            <div class="administration-code">${code}</div>
+            <div class="administration-description">${description}</div>
+            <div class="administration-value">${formatCurrency(value)}</div>
+          `;
+          gridContainer.appendChild(item);
+        });
+      }
+      document.getElementById('modalAdminTotal').textContent = formatCurrency(adminTotal);
+      const allCityCards = document.querySelectorAll('.city-card');
+      allCityCards.forEach(card => {
+        card.style.transform = '';
+        if (card.querySelector('.city-name').textContent.includes(capitalizeFirstLetter(cityName))) {
+          card.style.transform = 'scale(1.02)';
+          card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+        }
+      });
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('cityDetailsModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    document.addEventListener('click', function(event) {
+      const modal = document.getElementById('cityDetailsModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    async function processFiles() {
+      const files = document.getElementById('fileInput').files;
+      if (files.length === 0) return alert('Por favor, selecione pelo menos um arquivo PDF!');
+      processing = true;
+      cityTotals = {};
+      poleTotals = {};
+      administrationByCity = {};
+      Object.keys(administrationTotals).forEach(code => {
+        administrationTotals[code] = 0;
+      });
+      const processBtn = document.getElementById('processBtn');
+      processBtn.innerHTML = '<div class="loading"></div> Processando...';
+      processBtn.disabled = true;
+      document.getElementById('progressStatus').textContent = 'Processando...';
+      document.getElementById('exportButtons').classList.add('hidden');
+      document.getElementById('resultsContainer').classList.add('hidden');
+      const progressBar = document.getElementById('progressBar');
+      const totalFiles = files.length;
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          if (!processing) break;
+          document.getElementById('progressStatus').textContent = `Processando arquivo ${i + 1} de ${totalFiles}...`;
+          const result = await processPDF(files[i]);
+          if (result) {
+            const pole = cityMap[normalizeText(result.city)] || 'Desconhecido';
+            cityTotals[result.city] = (cityTotals[result.city] || 0) + result.value;
+            poleTotals[pole] = (poleTotals[pole] || 0) + result.value;
+            if (!administrationByCity[result.city]) {
+              administrationByCity[result.city] = {};
+            }
+            Object.keys(result.adminValuesByCity).forEach(code => {
+              administrationByCity[result.city][code] = (administrationByCity[result.city][code] || 0) + result.adminValuesByCity[code];
+            });
+            if (result.administrationValues) {
+              Object.keys(result.administrationValues).forEach(code => {
+                administrationTotals[code] += result.administrationValues[code];
+              });
+            }
+          }
+          progressBar.style.width = `${((i + 1) / totalFiles * 100)}%`;
+        }
+        generateResults();
+        document.getElementById('exportButtons').classList.remove('hidden');
+        document.getElementById('resultsContainer').classList.remove('hidden');
+        document.getElementById('progressStatus').textContent = 'Processamento concluído com sucesso!';
+      } catch (error) {
+        console.error('Erro durante o processamento:', error);
+        alert('Ocorreu um erro durante o processamento: ' + error.message);
+      } finally {
+        processing = false;
+        processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Arquivos';
+        processBtn.disabled = false;
+      }
+    }
+
+    async function processPDF(file) {
+      return new Promise(async (resolve) => {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+          let fullTextLines = [];
+          let administrationValues = {};
+
+          // Processa todas as páginas
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            // Agrupa os itens em linhas com tolerância (ajuste tolerance se necessário)
+            const linhasAgrupadas = agruparPorLinha(textContent.items, 8);
+            // Reconstrói cada linha e acumula
+            linhasAgrupadas.forEach(linha => {
+              const lineText = reconstruirLinha(linha);
+              fullTextLines.push(lineText);
+            });
+          }
+          // Concatena todas as linhas para busca geral de padrões
+          fullText = fullTextLines.join(' ');
+
+          // Processamento dos valores de administração por código
+          fullTextLines.forEach(lineText => {
+            const adminCodes = Object.keys(administrationCodes);
+            adminCodes.forEach(code => {
+              if (lineText.includes(code)) {
+                const regex = /(\d{1,3}(?:\.\d{3})*,\d{2})(?=\s|$)/g;
+                let matches = lineText.match(regex);
+                if (matches && matches.length >= 2) {
+                  const totalValue = matches[matches.length - 1];
+                  let numValue = parseFloat(totalValue.replace(/\./g, '').replace(',', '.'));
+                  administrationValues[code] = (administrationValues[code] || 0) + numValue;
+                }
+              }
+            });
+          });
+
+          // Identifica a cidade a partir de diversos padrões – percorre as linhas reconstruídas
+          let foundCity = '';
+          const cityPatterns = [
+            /LOCAL DE ENTREGA:\s*-\s*([^-]+?)\s*-/i,
+            /MA\s+REP\.?\s*ATIVOS\s+([A-ZÀ-Ü\s]+?)\s*-/i,
+            /CANTEIRO DE OBRAS\s*-\s*([A-ZÀ-Ü\s]+)/i,
+            /LOCAL DE ENTREGA:\s*([A-ZÀ-Ü\s]+?)\s*-/i,
+            /MUNICÍPIO:\s*([A-ZÀ-Ü\s]+)/i
+          ];
+          for (let line of fullTextLines) {
+            for (let pattern of cityPatterns) {
+              const match = line.match(pattern);
+              if (match) {
+                let rawCity = match[1].trim();
+                rawCity = rawCity.replace(/-.*$/, '').trim();
+                const normalized = normalizeText(rawCity);
+                if (cityMap[normalized]) {
+                  foundCity = normalized;
+                  break;
+                }
+                const matchedCity = Object.keys(cityMap).find(city =>
+                  normalized.includes(city) || city.includes(normalized)
+                );
+                if (matchedCity) {
+                  foundCity = matchedCity;
+                  break;
+                }
+              }
+            }
+            if (foundCity) break;
+          }
+
+          // Extrai o valor total geral
+          let value = 0;
+          const valueMatch = fullText.match(/VALOR TOTAL:\s*([\d.,]+)/i);
+          if (valueMatch) {
+            value = parseFloat(valueMatch[1].replace(/\./g, '').replace(',', '.'));
+          }
+
+          // Cria o objeto de valores de administração por cidade
+          const adminValuesByCity = {};
+          Object.keys(administrationCodes).forEach(code => {
+            adminValuesByCity[code] = administrationValues[code] || 0;
+          });
+
+          // Caso algum código não tenha sido capturado, tenta um padrão alternativo
+          const adminCodes = Object.keys(administrationCodes);
+          adminCodes.forEach(code => {
+            if (!administrationValues[code] || administrationValues[code] == 0) {
+              const altPattern = new RegExp(`${code}[\\s\\S]*?(\\d{1,3}(?:\\.\\d{3})*,\\d{2})(?=\\s|$)`);
+              const altMatch = fullText.match(altPattern);
+              administrationValues[code] = altMatch ? parseFloat(altMatch[1].replace(/\./g, '').replace(',', '.')) : 0;
+            }
+          });
+
+          resolve({ 
+            city: foundCity || 'Cidade não identificada', 
+            value,
+            administrationValues,
+            adminValuesByCity
+          });
+        } catch (error) {
+          console.error(`Erro ao processar ${file.name}:`, error);
+          resolve(null);
+        }
+      });
+    }
+
+    function generateResults() {
+      document.getElementById('citiesCount').textContent = Object.keys(cityTotals).length;
+      document.getElementById('polesCount').textContent = Object.keys(poleTotals).length;
+      const totalValue = Object.values(cityTotals).reduce((sum, value) => sum + value, 0);
+      document.getElementById('totalValue').textContent = formatCurrency(totalValue);
+      const averageValue = totalValue / Object.keys(cityTotals).length || 0;
+      document.getElementById('averageValue').textContent = formatCurrency(averageValue);
+      const adminGrid = document.getElementById('administrationGrid');
+      adminGrid.innerHTML = '';
+      let adminTotalSum = 0;
+      Object.entries(administrationCodes).forEach(([code, description]) => {
+        const value = administrationTotals[code] || 0;
+        adminTotalSum += value;
+        const item = document.createElement('div');
+        item.className = 'administration-item';
+        item.innerHTML = `
+          <div class="administration-code">${code}</div>
+          <div class="administration-description">${description}</div>
+          <div class="administration-value">${formatCurrency(value)}</div>
+        `;
+        adminGrid.appendChild(item);
+      });
+      document.getElementById('administrationTotal').textContent = formatCurrency(adminTotalSum);
+      generateCharts();
+      const grid = document.getElementById('resultsGrid');
+      grid.innerHTML = '';
+      const poles = {};
+      for (const [city, value] of Object.entries(cityTotals)) {
+        const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+        if (!poles[pole]) poles[pole] = [];
+        poles[pole].push({ city, value });
+      }
+      const sortedPoles = Object.keys(poles).sort((a, b) => poleTotals[b] - poleTotals[a]);
+      sortedPoles.forEach(pole => {
+        poles[pole].sort((a, b) => b.value - a.value);
+        poles[pole].forEach(data => {
+          const cityCard = document.createElement('div');
+          cityCard.className = 'city-card';
+          const hasAdmin = administrationByCity[data.city] && Object.values(administrationByCity[data.city]).some(val => val > 0);
+          if (hasAdmin) {
+            cityCard.classList.add('has-admin');
+          }
+          cityCard.innerHTML = `
+            <div class="city-card-header">
+              <div class="city-name">${capitalizeFirstLetter(data.city)}
+                ${hasAdmin ? '<span class="administration-badge">Adm</span>' : ''}
+              </div>
+              <div class="pole-name">${pole}</div>
+            </div>
+            <div class="city-value">${formatCurrency(data.value)}</div>
+          `;
+          cityCard.addEventListener('click', () => showCityDetails(data.city));
+          grid.appendChild(cityCard);
+        });
+      });
+      const totalRow = document.createElement('div');
+      totalRow.className = 'total-row';
+      totalRow.innerHTML = `
+        <div class="total-label">VALOR TOTAL GERAL</div>
+        <div class="total-value">${formatCurrency(totalValue)}</div>
+      `;
+      grid.appendChild(totalRow);
+    }
+
+    function generateCharts() {
+      const ctxPoles = document.getElementById('polesChart').getContext('2d');
+      const ctxCities = document.getElementById('citiesChart').getContext('2d');
+      if (polesChart) polesChart.destroy();
+      if (citiesChart) citiesChart.destroy();
+      const sortedPoles = Object.entries(poleTotals)
+        .sort((a, b) => b[1] - a[1])
+        .map(([pole, value]) => ({
+          pole: pole.replace('CANTEIRO ', ''),
+          value
+        }));
+      polesChart = new Chart(ctxPoles, {
+        type: 'bar',
+        data: {
+          labels: sortedPoles.map(item => item.pole),
+          datasets: [{
+            label: 'Valor por Canteiro',
+            data: sortedPoles.map(item => item.value),
+            backgroundColor: '#4361ee',
+            borderColor: '#3a56d4',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatCurrency(value, true);
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return formatCurrency(context.raw);
+                }
+              }
+            },
+            legend: { display: false }
+          }
+        }
+      });
+      const sortedCities = Object.entries(cityTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([city, value]) => ({
+          city: capitalizeFirstLetter(city),
+          value
+        }));
+      citiesChart = new Chart(ctxCities, {
+        type: 'bar',
+        data: {
+          labels: sortedCities.map(item => item.city),
+          datasets: [{
+            label: 'Valor',
+            data: sortedCities.map(item => item.value),
+            backgroundColor: '#4361ee',
+            borderColor: '#3a56d4',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatCurrency(value, true);
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return formatCurrency(context.raw);
+                }
+              }
+            },
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function capitalizeFirstLetter(str) {
+      return str.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
+
+    function formatCurrency(value, skipSymbol = false) {
+      if (isNaN(value)) value = 0;
+      return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value).replace(skipSymbol ? 'R$' : '', '');
+    }
+
+    function clearAll() {
+      document.getElementById('fileInput').value = '';
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('progressStatus').textContent = 'Aguardando arquivos';
+      document.getElementById('fileCount').textContent = '0 arquivos selecionados';
+      document.getElementById('resultsGrid').innerHTML = '';
+      document.getElementById('exportButtons').classList.add('hidden');
+      document.getElementById('resultsContainer').classList.add('hidden');
+      cityTotals = {};
+      poleTotals = {};
+      administrationByCity = {};
+      Object.keys(administrationTotals).forEach(code => {
+        administrationTotals[code] = 0;
+      });
+      if (polesChart) polesChart.destroy();
+      if (citiesChart) citiesChart.destroy();
+    }
+
+    function exportExcel() {
+      const rows = [
+        ['CIDADE/LOCALIDADE', 'CANTEIRO', 'VALOR CIDADE', 'VALOR CANTEIRO'],
+        ...Object.entries(cityTotals).map(([city, value]) => {
+          const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+          return [
+            capitalizeFirstLetter(city),
+            pole,
+            value,
+            poleTotals[pole]
+          ];
+        }),
+        ['TOTAL GERAL', '', 
+          Object.values(cityTotals).reduce((sum, val) => sum + val, 0),
+          Object.values(poleTotals).reduce((sum, val) => sum + val, 0)
+        ],
+        [],
+        ['CÓDIGO', 'DESCRIÇÃO', 'VALOR ADMINISTRAÇÃO'],
+        ...Object.entries(administrationCodes).map(([code, description]) => [
+          code,
+          description,
+          administrationTotals[code] || 0
+        ]),
+        ['TOTAL ADMINISTRAÇÃO', '', 
+          Object.values(administrationTotals).reduce((sum, val) => sum + val, 0)
+        ],
+        [],
+        ['CUSTOS DE ADMINISTRAÇÃO POR CIDADE'],
+        ['CIDADE', 'CANTEIRO', ...Object.values(administrationCodes), 'TOTAL'],
+        ...Object.entries(administrationByCity).map(([city, adminValues]) => {
+          const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+          const row = [capitalizeFirstLetter(city), pole];
+          let total = 0;
+          Object.keys(administrationCodes).forEach(code => {
+            const value = adminValues[code] || 0;
+            row.push(value);
+            total += value;
+          });
+          row.push(total);
+          return row;
+        })
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Resultados');
+      XLSX.writeFile(wb, 'relatorio_cidades_canteiros.xlsx');
+    }
+
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'landscape'
+      });
+      doc.setProperties({
+        title: 'Relatório de Cidades e Canteiros',
+        subject: 'Relatório gerado automaticamente',
+        author: 'Processador Automático'
+      });
+      doc.setFontSize(16);
+      doc.setTextColor(67, 97, 238);
+      doc.text('Relatório de Cidades e Canteiros', 105, 15, { align: 'center' });
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 105, 22, { align: 'center' });
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Resumo Geral', 14, 30);
+      const totalValue = Object.values(cityTotals).reduce((sum, val) => sum + val, 0);
+      const summaryData = [
+        ['Cidades Processadas', Object.keys(cityTotals).length],
+        ['Canteiros Encontrados', Object.keys(poleTotals).length],
+        ['Valor Total Geral', formatCurrency(totalValue, true)],
+        ['Média por Cidade', formatCurrency(totalValue / Object.keys(cityTotals).length || 0, true)]
+      ];
+      doc.autoTable({
+        startY: 35,
+        head: [['Item', 'Valor']],
+        body: summaryData,
+        styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
+        headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+        columnStyles: { 1: { halign: 'right' } },
+        margin: { left: 14, right: 14 }
+      });
+      doc.setFontSize(12);
+      doc.text('Custos de Administração dos Canteiros', 14, doc.autoTable.previous.finalY + 15);
+      const adminData = Object.entries(administrationCodes).map(([code, description]) => [
+        code,
+        description,
+        formatCurrency(administrationTotals[code] || 0, true)
+      ]);
+      const adminTotal = Object.values(administrationTotals).reduce((sum, val) => sum + val, 0);
+      doc.autoTable({
+        startY: doc.autoTable.previous.finalY + 20,
+        head: [['Código', 'Descrição', 'Valor']],
+        body: adminData,
+        foot: [['', 'Total Administração', formatCurrency(adminTotal, true)]],
+        styles: { fontSize: 9, cellPadding: 2, overflow: 'linebreak' },
+        headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+        columnStyles: { 2: { halign: 'right' }, 0: { cellWidth: 25 }, 1: { cellWidth: 'auto' }, 2: { cellWidth: 30 } },
+        footStyles: { fillColor: [76, 201, 240], textColor: [0, 0, 0] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+        margin: { left: 14, right: 14 }
+      });
+      doc.addPage();
+      doc.setFontSize(12);
+      doc.text('Custos de Administração por Cidade', 14, 20);
+      const cityAdminData = [];
+      Object.keys(administrationByCity).forEach(city => {
+        const cityAdmin = administrationByCity[city];
+        const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+        const row = [capitalizeFirstLetter(city), pole.replace('CANTEIRO ', '')];
+        let cityTotal = 0;
+        Object.keys(administrationCodesForPDF).forEach(code => {
+          const value = cityAdmin[code] || 0;
+          row.push(formatCurrency(value, true));
+          cityTotal += value;
+        });
+        row.push(formatCurrency(cityTotal, true));
+        cityAdminData.push(row);
+      });
+      cityAdminData.sort((a, b) => {
+        const valA = parseFloat(a[a.length-1].replace(/\./g, '').replace(',', '.'));
+        const valB = parseFloat(b[b.length-1].replace(/\./g, '').replace(',', '.'));
+        return valB - valA;
+      });
+      const headers = ['Cidade', 'Canteiro', ...Object.values(administrationCodesForPDF), 'Total'];
+      const columnStyles = {};
+      const numAdminColumns = Object.keys(administrationCodesForPDF).length;
+      const columnWidth = (277 - 40) / (numAdminColumns + 3);
+      headers.forEach((_, index) => {
+        columnStyles[index] = {
+          cellWidth: index === 0 ? 40 : (index === 1 ? 30 : columnWidth),
+          halign: index >= 2 ? 'right' : 'left',
+          fontSize: 7
+        };
+      });
+      doc.autoTable({
+        startY: 25,
+        head: [headers],
+        body: cityAdminData,
+        styles: { fontSize: 7, cellPadding: 1, overflow: 'linebreak' },
+        headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255], fontSize: 7 },
+        columnStyles: columnStyles,
+        margin: { left: 14, right: 14 },
+        tableWidth: 'auto',
+        pageBreak: 'auto',
+        showHead: 'everyPage'
+      });
+      doc.setFontSize(12);
+      doc.text('Custos de Administração por Polo', 14, doc.autoTable.previous.finalY + 15);
+      const poleAdminData = {};
+      Object.keys(administrationByCity).forEach(city => {
+        const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+        if (!poleAdminData[pole]) {
+          poleAdminData[pole] = {};
+          Object.keys(administrationCodesForPDF).forEach(code => {
+            poleAdminData[pole][code] = 0;
+          });
+        }
+        Object.keys(administrationByCity[city]).forEach(code => {
+          poleAdminData[pole][code] += administrationByCity[city][code] || 0;
+        });
+      });
+      const poleAdminRows = Object.keys(poleAdminData).map(pole => {
+        const row = [pole.replace('CANTEIRO ', '')];
+        let poleTotal = 0;
+        Object.keys(administrationCodesForPDF).forEach(code => {
+          const value = poleAdminData[pole][code] || 0;
+          row.push(formatCurrency(value, true));
+          poleTotal += value;
+        });
+        row.push(formatCurrency(poleTotal, true));
+        return row;
+      });
+      poleAdminRows.sort((a, b) => {
+        const valA = parseFloat(a[a.length-1].replace(/\./g, '').replace(',', '.'));
+        const valB = parseFloat(b[b.length-1].replace(/\./g, '').replace(',', '.'));
+        return valB - valA;
+      });
+      doc.autoTable({
+        startY: doc.autoTable.previous.finalY + 20,
+        head: [['Polo', ...Object.values(administrationCodesForPDF), 'Total']],
+        body: poleAdminRows,
+        styles: { fontSize: 7, cellPadding: 1, overflow: 'linebreak' },
+        headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255], fontSize: 7 },
+        columnStyles: columnStyles,
+        margin: { left: 14, right: 14 }
+      });
+      doc.addPage();
+      doc.setFontSize(12);
+      doc.text('Detalhamento por Cidade', 14, 20);
+      const tableData = Object.entries(cityTotals).map(([city, value]) => {
+        const pole = cityMap[normalizeText(city)] || 'Desconhecido';
+        return [capitalizeFirstLetter(city), pole.replace('CANTEIRO ', ''), formatCurrency(value, true)];
+      });
+      tableData.sort((a, b) => parseFloat(b[2].replace(/\./g, '').replace(',', '.')) - parseFloat(a[2].replace(/\./g, '').replace(',', '.')));
+      doc.autoTable({
+        startY: 25,
+        head: [['Cidade', 'Canteiro', 'Valor']],
+        body: tableData,
+        styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak' },
+        headStyles: { fillColor: [67, 97, 238], textColor: [255, 255, 255] },
+        columnStyles: { 0: { cellWidth: 80 }, 1: { cellWidth: 50 }, 2: { cellWidth: 40, halign: 'right' } },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+        margin: { left: 14, right: 14 }
+      });
+      doc.setFontSize(11);
+      doc.setTextColor(67, 97, 238);
+      doc.text(`Valor Total Geral: ${formatCurrency(totalValue, false)}`, 14, doc.autoTable.previous.finalY + 10);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Relatório gerado automaticamente - Desenvolvido por Pablo Dias', 105, doc.internal.pageSize.height - 10, { align: 'center' });
+      doc.save('relatorio_cidades_canteiros.pdf');
+    }
+  </script>
+</body>
+</html>

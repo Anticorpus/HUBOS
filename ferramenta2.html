@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXTRATOR DE OS E VALORES | Busca Fácil</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+            margin-bottom: 2rem;
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 1.5rem;
+            border: 2px dashed var(--light-gray);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .file-input-label i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-input-label span {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-input-label small {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        #fileInput {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        
+        .progress-container {
+            margin-top: 1.5rem;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn i {
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #3730a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(55, 48, 163, 0.3);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #e5177b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(247, 37, 133, 0.3);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3ab5d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(76, 201, 240, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .results-container {
+            margin-top: 2rem;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.5rem;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background-color: var(--light);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .file-item button {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .file-item button:hover {
+            background-color: #e5177b;
+        }
+        
+        .file-item button i {
+            font-size: 0.7rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .feedback {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 6px;
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .credits {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .credits a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .credits a:hover {
+            text-decoration: underline;
+        }
+        
+        .output-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .output-column {
+            flex: 1;
+        }
+        
+        .output-column h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1.5rem 0;
+                border-radius: 0 0 15px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .output-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>EXTRATOR DE OS E VALORES</h1>
+            <p class="subtitle">Busque números de OS e seus valores correspondentes em PDFs</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-list-ol"></i>
+                <span>Ordens de Serviço para Buscar</span>
+            </div>
+            
+            <textarea id="inputOS" placeholder="Cole aqui os números de OS desejados, um por linha..."></textarea>
+            
+            <div class="card-title">
+                <i class="fas fa-file-upload"></i>
+                <span>Carregar Arquivos PDF</span>
+            </div>
+            
+            <div class="file-input-container">
+                <label for="fileInput" class="file-input-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Arraste e solte os arquivos PDF aqui ou clique para selecionar</span>
+                    <small>Selecione um ou mais arquivos PDF contendo ordens de serviço</small>
+                </label>
+                <input type="file" id="fileInput" accept="application/pdf" multiple>
+            </div>
+            
+            <div class="file-list" id="fileList"></div>
+            
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progressStatus">Aguardando arquivos...</span>
+                    <span id="fileCount">0 arquivos selecionados</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn btn-primary" onclick="processarPDFs()" id="processBtn">
+                    <i class="fas fa-cogs"></i> Processar Arquivos
+                </button>
+                <button class="btn btn-danger" onclick="clearOutput()">
+                    <i class="fas fa-trash"></i> Limpar Tudo
+                </button>
+                <button class="btn btn-danger" id="cancelButton" onclick="cancelProcessing()" style="display: none;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+            
+            <div id="exportButtons" class="hidden">
+                <div class="btn-container">
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <button class="btn btn-success" onclick="exportToPdf()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="results-container">
+            <h2 class="card-title">
+                <i class="fas fa-list-ol"></i>
+                Resultados - OS e Valores
+            </h2>
+            
+            <div class="output-group">
+                <div class="output-column">
+                    <h3>Números de OS</h3>
+                    <textarea id="osList" readonly></textarea>
+                    <button class="btn btn-secondary" onclick="copiarTexto('osList')">
+                        <i class="fas fa-copy"></i> Copiar OS
+                    </button>
+                </div>
+                <div class="output-column">
+                    <h3>Valores Correspondentes</h3>
+                    <textarea id="valoresList" readonly></textarea>
+                    <button class="btn btn-secondary" onclick="copiarTexto('valoresList')">
+                        <i class="fas fa-copy"></i> Copiar Valores
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="credits">
+            Desenvolvido por <a href="http://wa.me/+5538998683467" target="_blank">Pablo Dias</a> | © 2023 Todos os direitos reservados
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const progressBar = document.getElementById('progressBar');
+        const cancelButton = document.getElementById('cancelButton');
+        let isProcessing = false;
+
+        // Atualizar contagem de arquivos selecionados
+        fileInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            const count = this.files.length;
+            document.getElementById('fileCount').textContent = `${count} arquivo(s) selecionado(s)`;
+            document.getElementById('progressStatus').textContent = count > 0 ? 
+                'Pronto para processar' : 'Aguardando arquivos';
+            
+            Array.from(fileInput.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button onclick="removeFile(${index})"><i class="fas fa-times"></i> Remover</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        function removeFile(index) {
+            const files = Array.from(fileInput.files);
+            files.splice(index, 1);
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+
+        async function processarPDFs() {
+            const osDesejadas = document.getElementById('inputOS').value.trim().split(/\s+/);
+            if (!osDesejadas.length || osDesejadas[0] === '') {
+                alert('Por favor, insira pelo menos um número de OS para buscar!');
+                return;
+            }
+
+            if (!fileInput.files.length) {
+                alert('Por favor, selecione pelo menos um arquivo PDF!');
+                return;
+            }
+
+            isProcessing = true;
+            const processBtn = document.getElementById('processBtn');
+            processBtn.innerHTML = '<div class="loading"></div> Processando...';
+            processBtn.disabled = true;
+            
+            document.getElementById('feedback').style.display = 'block';
+            document.getElementById('feedback').textContent = 'Processando arquivos...';
+            document.getElementById('exportButtons').classList.add('hidden');
+            
+            progressBar.style.width = '0%';
+            cancelButton.style.display = 'inline-block';
+
+            const osList = [];
+            const valoresList = [];
+            const totalFiles = fileInput.files.length;
+            let processedFiles = 0;
+
+            try {
+                for (let file of fileInput.files) {
+                    if (!isProcessing) break;
+
+                    const buffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+                    let text = '';
+                    
+                    for (let j = 1; j <= pdf.numPages; j++) {
+                        if (!isProcessing) break;
+                        const page = await pdf.getPage(j);
+                        const content = await page.getTextContent();
+                        text += content.items.map(i => i.str).join(' ') + '\n';
+                    }
+
+                    // Processa cada OS individualmente
+                    const osSections = text.split(/\d{14}/g);
+                    const osMatches = [...text.matchAll(/\d{14}/g)];
+
+                    for (let k = 0; k < osMatches.length; k++) {
+                        const os = osMatches[k][0];
+                        const bloco = osSections[k + 1];
+                        
+                        // Regex melhorada para capturar valores totais
+                        const valorMatch = bloco.match(/VALOR TOTAL:\s*R\$\s*([\d.,]+)/i) || 
+                                           bloco.match(/Total \(R\$\)\s*([\d.,]+)/i) ||
+                                           bloco.match(/Quantidade Registros:.*?R\$\s*([\d.,]+)/i);
+                        
+                        if (valorMatch && osDesejadas.includes(os.slice(-12))) {
+                            // Formata o valor corretamente
+                            const valorNumerico = valorMatch[1].replace(/\./g, '').replace(',', '.');
+                            const valorFormatado = parseFloat(valorNumerico).toFixed(2).replace('.', ',');
+                            
+                            osList.push(os);
+                            valoresList.push(valorFormatado);
+                        }
+                    }
+
+                    processedFiles++;
+                    progressBar.style.width = `${(processedFiles / totalFiles) * 100}%`;
+                    document.getElementById('progressStatus').textContent = 
+                        `Processando arquivo ${processedFiles} de ${totalFiles}...`;
+                }
+
+                // Organizar resultados na mesma ordem das OS desejadas
+                const osResult = [];
+                const valoresResult = [];
+                osDesejadas.forEach(os => {
+                    const idx = osList.findIndex(full => full.slice(-12) === os);
+                    osResult.push(os);
+                    valoresResult.push(idx >= 0 ? valoresList[idx] : '');
+                });
+
+                document.getElementById('osList').value = osResult.join('\n');
+                document.getElementById('valoresList').value = valoresResult.join('\n');
+                document.getElementById('exportButtons').classList.remove('hidden');
+                document.getElementById('feedback').textContent = 'Processamento concluído com sucesso!';
+                
+            } catch (error) {
+                console.error('Erro durante o processamento:', error);
+                document.getElementById('feedback').textContent = 'Ocorreu um erro durante o processamento: ' + error.message;
+            } finally {
+                isProcessing = false;
+                processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Arquivos';
+                processBtn.disabled = false;
+                cancelButton.style.display = 'none';
+            }
+        }
+
+        function cancelProcessing() {
+            isProcessing = false;
+            document.getElementById('processBtn').innerHTML = '<i class="fas fa-cogs"></i> Processar Arquivos';
+            document.getElementById('processBtn').disabled = false;
+            document.getElementById('feedback').textContent = 'Processamento cancelado pelo usuário';
+            document.getElementById('feedback').style.display = 'block';
+            cancelButton.style.display = 'none';
+        }
+
+        function copiarTexto(id) {
+            const output = document.getElementById(id);
+            output.select();
+            document.execCommand('copy');
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = id === 'osList' ? 
+                'Números de OS copiados para a área de transferência!' : 
+                'Valores copiados para a área de transferência!';
+            feedback.style.display = 'block';
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 3000);
+        }
+
+        function clearOutput() {
+            document.getElementById('inputOS').value = '';
+            document.getElementById('osList').value = '';
+            document.getElementById('valoresList').value = '';
+            document.getElementById('exportButtons').classList.add('hidden');
+            document.getElementById('feedback').style.display = 'none';
+            progressBar.style.width = '0%';
+            document.getElementById('progressStatus').textContent = 'Aguardando arquivos';
+            document.getElementById('fileCount').textContent = '0 arquivos selecionados';
+            fileInput.value = '';
+            fileList.innerHTML = '';
+        }
+
+        function exportToExcel() {
+            const osList = document.getElementById('osList').value.split('\n');
+            const valoresList = document.getElementById('valoresList').value.split('\n');
+            
+            const data = [['Número OS', 'Valor (R$)']];
+            for (let i = 0; i < osList.length; i++) {
+                data.push([osList[i], valoresList[i]]);
+            }
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ordens de Serviço");
+            XLSX.writeFile(wb, "ordens_e_valores.xlsx");
+        }
+
+        function exportToPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const osList = document.getElementById('osList').value.split('\n');
+            const valoresList = document.getElementById('valoresList').value.split('\n');
+
+            const fontSize = 10;
+            const lineHeight = 7;
+            const margin = 10;
+            let y = margin;
+
+            doc.setFontSize(fontSize);
+            doc.setTextColor(67, 97, 238);
+            doc.text('Relatório de Ordens de Serviço e Valores', 105, y, { align: 'center' });
+            y += 15;
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 105, y, { align: 'center' });
+            y += 10;
+
+            doc.setFontSize(fontSize);
+            
+            // Cabeçalho da tabela
+            doc.setFillColor(67, 97, 238);
+            doc.setTextColor(255, 255, 255);
+            doc.rect(margin, y, 120, 8, 'F');
+            doc.rect(margin + 120, y, 40, 8, 'F');
+            doc.text('Número OS', margin + 5, y + 6);
+            doc.text('Valor (R$)', margin + 125, y + 6);
+            y += 10;
+            
+            // Conteúdo da tabela
+            doc.setTextColor(0, 0, 0);
+            for (let i = 0; i < osList.length; i++) {
+                if (y > doc.internal.pageSize.height - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+                
+                doc.text(osList[i], margin + 5, y + 6);
+                doc.text(valoresList[i], margin + 125, y + 6);
+                y += 8;
+                
+                // Linha divisória
+                if (i < osList.length - 1) {
+                    doc.setDrawColor(200, 200, 200);
+                    doc.line(margin, y + 2, doc.internal.pageSize.width - margin, y + 2);
+                    y += 4;
+                }
+            }
+
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Relatório gerado automaticamente - BUSCA FÁCIL (OS)', 
+                105, doc.internal.pageSize.height - 10, { align: 'center' });
+            
+            doc.save('ordens_e_valores.pdf');
+        }
+    </script>
+</body>
+</html>
