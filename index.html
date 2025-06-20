@@ -1,123 +1,246 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HUB OS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    :root {
-      --primary: #1a1a1a;
-      --accent: #4361ee;
-      --background: #f9fafb;
-      --light: #ffffff;
-      --dark: #0f172a;
-      --gray: #94a3b8;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HUB OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #4361ee;
+            --background: #f9fafb;
+            --light: #ffffff;
+            --dark: #0f172a;
+            --gray: #94a3b8;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      font-family: 'Montserrat', sans-serif;
-      display: flex;
-      height: 100vh;
-      background: var(--background);
-      color: var(--dark);
-    }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            height: 100vh;
+            background: var(--background);
+            color: var(--dark);
+        }
 
-    aside {
-      width: 72px;
-      background: var(--dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem 0;
-      gap: 2rem;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.05);
-    }
+        aside {
+            width: 72px;
+            background: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 2rem;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+        }
 
-    aside button {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-      padding: 0.3rem;
-    }
+        aside button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0.3rem;
+        }
 
-    aside button svg {
-      width: 28px;
-      height: 28px;
-      stroke: white;
-      fill: none;
-      stroke-width: 2;
-      transition: 0.3s;
-    }
+        aside button svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            transition: 0.3s;
+        }
 
-    aside button:hover svg {
-      stroke: var(--accent);
-      transform: scale(1.1);
-    }
+        aside button:hover svg {
+            stroke: var(--accent);
+            transform: scale(1.1);
+        }
 
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--light);
-      border-radius: 12px;
-      overflow: hidden;
-      margin: 1rem;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-    }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--light);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+        }
 
-    header {
-      background: var(--light);
-      padding: 1.5rem;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--dark);
-      text-align: center;
-      border-bottom: 1px solid #e2e8f0;
-    }
+        header {
+            background: var(--light);
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-    iframe {
-      flex: 1;
-      width: 100%;
-      border: none;
-    }
-  </style>
+        iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+
+        /* --- Estilos para o prompt de senha --- */
+        #password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Garante que fique por cima de tudo */
+        }
+
+        #password-prompt-box {
+            background: var(--light);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        #password-prompt-box h2 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+
+        #password-prompt-box input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        #password-prompt-box input[type="password"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        #password-prompt-box button {
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #password-prompt-box button:hover {
+            background-color: #3855d9; /* Um tom ligeiramente mais escuro */
+            transform: translateY(-2px);
+        }
+
+        #password-prompt-box p {
+            color: red;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        /* --- Fim dos estilos para o prompt de senha --- */
+
+    </style>
 </head>
 <body>
-  <aside>
-    <button title="Busca Números" onclick="loadTool('ferramenta1.html')">
-      <svg data-lucide="search"></svg>
-    </button>
-    <button title="Boletins" onclick="loadTool('ferramenta4.html')">
-      <svg data-lucide="clipboard-list"></svg>
-    </button>
 
-    <button title="OS e Valores" onclick="loadTool('ferramenta2.html')">
-      <svg data-lucide="list"></svg>
-    </button>
-    <button title="Cidades e Canteiros" onclick="loadTool('ferramenta3.html')">
-      <svg data-lucide="bar-chart-3"></svg>
-    </button>
-  </aside>
-  <main>
-    <header>HUB OS</header>
-    <iframe id="toolFrame" src=""></iframe>
-  </main>
+    <div id="password-overlay">
+        <div id="password-prompt-box">
+            <h2>Bem-vindo!</h2>
+            <p>Por favor, digite a senha para acessar o HUB OS:</p>
+            <input type="password" id="senhaInput" placeholder="Digite a senha aqui..." />
+            <button onclick="verificarSenha()">Acessar</button>
+            <p id="mensagemErro"></p>
+        </div>
+    </div>
 
-  <script>
-    lucide.createIcons();
-    function loadTool(file) {
-      document.getElementById('toolFrame').src = file;
-    }
-  </script>
+    <aside id="main-aside">
+        <button title="Busca Números" onclick="loadTool('ferramenta1.html')">
+            <svg data-lucide="search"></svg>
+        </button>
+        <button title="Boletins" onclick="loadTool('ferramenta4.html')">
+            <svg data-lucide="clipboard-list"></svg>
+        </button>
+        <button title="OS e Valores" onclick="loadTool('ferramenta2.html')">
+            <svg data-lucide="list"></svg>
+        </button>
+        <button title="Cidades e Canteiros" onclick="loadTool('ferramenta3.html')">
+            <svg data-lucide="bar-chart-3"></svg>
+        </button>
+    </aside>
+    <main id="main-content">
+        <header>HUB OS</header>
+        <iframe id="toolFrame" src=""></iframe>
+    </main>
+
+    <script>
+        // --- FUNÇÃO DE AUTENTICAÇÃO ---
+        const SENHA_CORRETA = "SANEPLANcopasa@123"; // <-- MUDE ESTA SENHA!
+
+        function verificarSenha() {
+            const senhaDigitada = document.getElementById("senhaInput").value;
+            const mensagemErro = document.getElementById("mensagemErro");
+            const passwordOverlay = document.getElementById("password-overlay");
+            const mainAside = document.getElementById("main-aside");
+            const mainContent = document.getElementById("main-content");
+
+            if (senhaDigitada === SENHA_CORRETA) {
+                passwordOverlay.style.display = 'none'; // Esconde o overlay de senha
+                mainAside.style.display = 'flex'; // Mostra a aside
+                mainContent.style.display = 'flex'; // Mostra o main
+                // Chama a função para criar os ícones após mostrar o conteúdo
+                lucide.createIcons();
+            } else {
+                mensagemErro.textContent = "Senha incorreta. Tente novamente.";
+                document.getElementById("senhaInput").value = ""; // Limpa o campo da senha
+            }
+        }
+
+        // --- OCULTAR CONTEÚDO AO CARREGAR A PÁGINA ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainAside = document.getElementById("main-aside");
+            const mainContent = document.getElementById("main-content");
+
+            // Oculta os elementos principais da página por padrão
+            mainAside.style.display = 'none';
+            mainContent.style.display = 'none';
+
+            // Adiciona um listener para a tecla 'Enter' no campo de senha
+            document.getElementById("senhaInput").addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    verificarSenha();
+                }
+            });
+        });
+
+        // --- FUNÇÃO EXISTENTE PARA CARREGAR FERRAMENTAS ---
+        function loadTool(file) {
+            document.getElementById('toolFrame').src = file;
+        }
+
+        // lucide.createIcons() será chamado APENAS após a senha ser correta,
+        // garantindo que os ícones sejam renderizados no momento certo.
+        // Removi a chamada original fora da função verificarSenha.
+    </script>
 </body>
 </html>
